@@ -1,0 +1,30 @@
+{
+  "name": "test-mysql-mongodb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PiniWeiss/test-mysql-mongodb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/PiniWeiss/test-mysql-mongodb/issues"
+  },
+  "homepage": "https://github.com/PiniWeiss/test-mysql-mongodb#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mongodb": "^7.0.0",
+    "mysql2": "^3.16.0",
+    "nodemon": "^3.1.11"
+  }
+}
