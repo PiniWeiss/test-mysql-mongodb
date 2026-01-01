@@ -8,8 +8,6 @@ export const createUser = async (req, res) => {
 
     const now = new Date();
 
-    const allUsers = usersCollection.find().toArray;
-
     const newUser = {
       username: body.username,
       password: body.password,
@@ -21,6 +19,8 @@ export const createUser = async (req, res) => {
     const user = await usersCollection.findOne({
       _id: result.insertedId,
     });
+    delete user.password;
+    delete user.createdAt;
     res.status(201).json({ msg: "success", data: user });
   } catch (err) {
     console.error(err);

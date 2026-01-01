@@ -57,14 +57,13 @@ export async function getDecryptMessage(req, res) {
       "SELECT * FROM messages WHERE id=?",
       [intMessageId]
     );
-    console.log(message[0][0]);
 
-    if (!message) res.status(404).json({ error: "Message not found" });
+    if (!message[0][0]) res.status(404).json({ error: "Message not found" });
     if (!user) res.status(404).json({ error: "User not found" });
     if (user.password != password)
       res.status(401).json({ error: "password not matched." });
 
-    const dencryptedText = message[0][0].encrypted_text
+    const decryptedText = message[0][0].encrypted_text
       .split("")
       .reverse()
       .join("")
@@ -72,7 +71,7 @@ export async function getDecryptMessage(req, res) {
 
     res.status(200).json({
       id: intMessageId,
-      dencryptedText: dencryptedText,
+      decryptedText: decryptedText,
     });
   } catch (err) {
     console.error(err);
