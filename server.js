@@ -19,6 +19,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/auth", users)
+app.use("/api/users", users)
 app.use("/api/messages", messages)
 
 process.on("SIGINT", async () => {

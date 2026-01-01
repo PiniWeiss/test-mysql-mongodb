@@ -34,12 +34,10 @@ export async function createMessage(req, res) {
     delete newMessage[0][0].username;
     delete newMessage[0][0].inserted_at;
 
-    res
-      .status(201)
-      .json({
-        message: "Message created successfuly.",
-        data: newMessage[0][0],
-      });
+    res.status(201).json({
+      message: "Message created successfuly.",
+      data: newMessage[0][0],
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "error" + err.message, data: null });
@@ -49,65 +47,35 @@ export async function createMessage(req, res) {
 export async function getDecryptMessage(req, res) {
   try {
     const { username, password, messageId } = req.body;
-    const intMessageId = parseInt(messageId)
+    const intMessageId = parseInt(messageId);
 
     const user = await req.mongoConn
-    .collection("users")
-    .findOne({ username: username });
+      .collection("users")
+      .findOne({ username: username });
 
     const message = await req.mysqlConn.execute(
       "SELECT * FROM messages WHERE id=?",
       [intMessageId]
     );
     console.log(message[0][0]);
-    
 
     if (!message) res.status(404).json({ error: "Message not found" });
     if (!user) res.status(404).json({ error: "User not found" });
     if (user.password != password)
       res.status(401).json({ error: "password not matched." });
 
-    const dencryptedText = message[0][0].encrypted_text.split("").reverse().join("").toLowerCase();
+    const dencryptedText = message[0][0].encrypted_text
+      .split("")
+      .reverse()
+      .join("")
+      .toLowerCase();
 
-    res
-      .status(200)
-      .json({
-        id: intMessageId, dencryptedText: dencryptedText
-      });
+    res.status(200).json({
+      id: intMessageId,
+      dencryptedText: dencryptedText,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "error" + err.message, data: null });
   }
 }
-// export async function getOrders(req, res) {
-//   const [rows] = await req.mysqlConn.query("SELECT * FROM orders");
-//   res.json(rows);
-// }
-
-// export async function getOrder(req, res) {
-//   const id = Number(req.params.id);
-//   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-
-//   const [rows] = await req.mysqlConn.query(
-//     "SELECT * FROM orders WHERE id = ?",
-//     [id]
-//   );
-//   if (!rows.length) return res.status(404).json({ error: "Not found" });
-
-//   res.json(rows[0]);
-// }
-
-// export const getOrders = async (req, res) => {
-//   try {
-//     let results;
-
-//     await req.mongoConnConn.query("SELECT * FROM orders;");
-
-//     const ordersArr = results[0];
-
-//     res.status(200).json({ msg: "success", data: ordersArr });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ msg: "error" + err.message, data: null });
-//   }
-// };

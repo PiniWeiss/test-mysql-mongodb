@@ -1,8 +1,8 @@
 import express from "express";
-import { createUser} from "../conrollers/users.js";
+import { createUser } from "../conrollers/users.js";
 
 const router = express.Router();
 
-router.route("/register").post(createUser)//.get(getOrders)
+router.route("/register").post(createUser);
 
 export default router;
