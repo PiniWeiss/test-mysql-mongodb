@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 export const createUser = async (req, res) => {
   try {
     const mongoConn = req.mongoConn;
