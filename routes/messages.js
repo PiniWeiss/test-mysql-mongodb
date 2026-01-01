@@ -1,8 +1,9 @@
 import express from "express";
-import { createProduct, getProducts } from "../conrollers/users.js";
+import { createMessage, getDecryptMessage } from "../conrollers/messages.js";
 
 const router = express.Router();
 
-router.route("/").post(createProduct).get(getProducts);
+router.route("/encrypt").post(createMessage)
+router.route("/decrypt").post(getDecryptMessage)
 
 export default router;

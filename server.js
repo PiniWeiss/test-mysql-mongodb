@@ -2,8 +2,8 @@ import express from "express";
 import morgan from "morgan";
 import { getMysqlConn, initSqlDb } from "./utils/mysql.js";
 import { initMongoDb, getMongoConn } from "./utils/mongodb.js";
-import products from "./routes/messages.js"
-import orders from "./routes/users.js"
+import messages from "./routes/messages.js"
+import users from "./routes/users.js"
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -18,8 +18,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/products", products)
-app.use("/api/orders", orders)
+app.use("/api/auth", users)
+app.use("/api/messages", messages)
 
 process.on("SIGINT", async () => {
   await initConnection.end();

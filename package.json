@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/PiniWeiss/test-mysql-mongodb/issues"
   },
@@ -24,6 +24,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongodb": "^7.0.0",
+    "morgan": "^1.10.1",
     "mysql2": "^3.16.0",
     "nodemon": "^3.1.11"
   }

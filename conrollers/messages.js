@@ -1,64 +1,113 @@
-import { ObjectId } from "mongodb";
-
-export const createOrder = async (req, res) => {
+export async function createMessage(req, res) {
   try {
-    const mongoConn = req.mongoConn;
-    const productsCollection = mongoConn.collection("products");
-    const product = await productsCollection.findOne({
-      _id: new ObjectId(req.body.productId),
-    });
-    console.log(product);
+    const { username, password, message, cipherType } = req.body;
 
-    if (!product) res.status(404);
-    await productsCollection.updateOne(
-      { _id: new ObjectId(req.body.productId) },
-      { $inc: { totalOrdersCount: 1 } }
-    );
-    const now = new Date();
+    const user = await req.mongoConn
+      .collection("users")
+      .findOne({ username: username });
 
-    const newOrder = {
-      productId: req.body.productId,
-      quantity: req.body.quantity,
-      customerName: req.body.customerName,
-      totalPrice: quantity * product.price,
-      orderDate: now,
-    };
+    if (!user) res.status(404).json({ error: "User not found" });
+    if (user.password != password)
+      res.status(401).json({ error: "password not matched." });
 
-    const result = await req.mongoConnConn.query(
-      "INSERT INTO orders (productId, quantity, customerName, totalPrice, orderDate) VALUES (?, ?, ?, ?, ?)",
-      [
-        newOrder.productId,
-        newOrder.quantity,
-        newOrder.customerName,
-        newOrder.totalPrice,
-        newOrder.orderDate,
-      ]
+    let encryptedText;
+    if (cipherType === "reverse") {
+      encryptedText = message.split("").reverse().join("").toUpperCase();
+    }
+
+    const result = await req.mysqlConn.execute(
+      "INSERT INTO messages (username, cipher_type, encrypted_text) VALUES (?, ?, ?)",
+      [username, cipherType, encryptedText]
     );
 
-    const order = await req.mongoConnConn.query(
-      "SELECT * FROM orders WHERE id = ?",
+    await req.mongoConn
+      .collection("users")
+      .updateOne(
+        { username: username },
+        { $inc: { encryptedMessagesCount: 1 } }
+      );
+    const newMessage = await req.mysqlConn.execute(
+      "SELECT * FROM messages WHERE id=?",
       [result[0].insertId]
     );
-    console.log("Created successfuly.");
 
-    res.status(201).json({ msg: "success", data: order[0] });
+    delete newMessage[0][0].username;
+    delete newMessage[0][0].inserted_at;
+
+    res
+      .status(201)
+      .json({
+        message: "Message created successfuly.",
+        data: newMessage[0][0],
+      });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "error" + err.message, data: null });
   }
-};
+}
 
-export const getOrders = async (req, res) => {
+export async function getDecryptMessage(req, res) {
   try {
-    let results;
+    const { username, password, messageId } = req.body;
+    const intMessageId = parseInt(messageId)
 
-    await req.mongoConnConn.query("SELECT * FROM orders;");
+    const user = await req.mongoConn
+    .collection("users")
+    .findOne({ username: username });
 
-    const ordersArr = results[0];
+    const message = await req.mysqlConn.execute(
+      "SELECT * FROM messages WHERE id=?",
+      [intMessageId]
+    );
+    console.log(message[0][0]);
+    
 
-    res.status(200).json({ msg: "success", data: ordersArr });
+    if (!message) res.status(404).json({ error: "Message not found" });
+    if (!user) res.status(404).json({ error: "User not found" });
+    if (user.password != password)
+      res.status(401).json({ error: "password not matched." });
+
+    const dencryptedText = message[0][0].encrypted_text.split("").reverse().join("").toLowerCase();
+
+    res
+      .status(200)
+      .json({
+        id: intMessageId, dencryptedText: dencryptedText
+      });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "error" + err.message, data: null });
   }
-};
+}
+// export async function getOrders(req, res) {
+//   const [rows] = await req.mysqlConn.query("SELECT * FROM orders");
+//   res.json(rows);
+// }
+
+// export async function getOrder(req, res) {
+//   const id = Number(req.params.id);
+//   if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+//   const [rows] = await req.mysqlConn.query(
+//     "SELECT * FROM orders WHERE id = ?",
+//     [id]
+//   );
+//   if (!rows.length) return res.status(404).json({ error: "Not found" });
+
+//   res.json(rows[0]);
+// }
+
+// export const getOrders = async (req, res) => {
+//   try {
+//     let results;
+
+//     await req.mongoConnConn.query("SELECT * FROM orders;");
+
+//     const ordersArr = results[0];
+
+//     res.status(200).json({ msg: "success", data: ordersArr });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ msg: "error" + err.message, data: null });
+//   }
+// };
