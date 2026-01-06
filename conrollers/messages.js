@@ -6,9 +6,9 @@ export async function createMessage(req, res) {
       .collection("users")
       .findOne({ username: username });
 
-    if (!user) res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: "User not found" });
     if (user.password != password)
-      res.status(401).json({ error: "password not matched." });
+      return res.status(401).json({ error: "password not matched." });
 
     let encryptedText;
     if (cipherType === "reverse") {
@@ -46,7 +46,7 @@ export async function createMessage(req, res) {
 
 export async function getDecryptMessage(req, res) {
   try {
-    const { username, password, messageId } = req.body;
+    const { username, password, messageId, cipherType } = req.body;
     const intMessageId = parseInt(messageId);
 
     const user = await req.mongoConn
@@ -58,16 +58,20 @@ export async function getDecryptMessage(req, res) {
       [intMessageId]
     );
 
-    if (!message[0][0]) res.status(404).json({ error: "Message not found" });
-    if (!user) res.status(404).json({ error: "User not found" });
+    if (!message[0][0])
+      return res.status(404).json({ error: "Message not found" });
+    if (!user) return res.status(404).json({ error: "User not found" });
     if (user.password != password)
-      res.status(401).json({ error: "password not matched." });
+      return res.status(401).json({ error: "password not matched." });
 
-    const decryptedText = message[0][0].encrypted_text
-      .split("")
-      .reverse()
-      .join("")
-      .toLowerCase();
+    let decryptedText;
+    if (cipherType === "reverse") {
+      decryptedText = message[0][0].encrypted_text
+        .split("")
+        .reverse()
+        .join("")
+        .toLowerCase();
+    }
 
     res.status(200).json({
       id: intMessageId,

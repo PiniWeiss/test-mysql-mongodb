@@ -41,9 +41,9 @@ export const getUser = async (req, res) => {
       .collection("users")
       .findOne({ username: username });
 
-    if (!user) res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: "User not found" });
     if (user.password != password)
-      res.status(401).json({ error: "password not matched." });
+      return res.status(401).json({ error: "password not matched." });
 
     delete user._id;
     delete user.password;
